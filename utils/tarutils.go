@@ -14,11 +14,6 @@ import (
 
 type TarballFileType string
 
-const (
-	Dotfile TarballFileType = "dotfile"
-	PackageFile TarballFileType = "pack_file"
-)
-
 //goland:noinspection GoUnhandledErrorResult
 func CreateTarball(tempPackageFolder, tarballFilePath string) error {
 	file, err := os.Create(tarballFilePath)
@@ -33,7 +28,6 @@ func CreateTarball(tempPackageFolder, tarballFilePath string) error {
 
 	tarWriter := tar.NewWriter(gzipWriter)
 	defer tarWriter.Close()
-
 
 	walkErr := filepath.Walk(tempPackageFolder, func(path string, info fs.FileInfo, err error) error {
 		// Skip folders

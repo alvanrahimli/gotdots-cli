@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
-	"strings"
 )
 
 func CopyFile(sourceFile, destinationFile string) error {
@@ -36,23 +34,4 @@ func CopyFile(sourceFile, destinationFile string) error {
 	}
 
 	return nil
-}
-
-func BatchCopyFiles(files []string, destinationFolder string) []string {
-	var copiedFiles []string
-	dotfileCount := len(files)
-	for i, dotfile := range files {
-		slashSplitted := strings.Split(dotfile, "/")
-		fileName := slashSplitted[len(slashSplitted) - 1]
-		copiedFileName := path.Join(destinationFolder, fileName)
-		copyErr := CopyFile(dotfile, copiedFileName)
-		if copyErr != nil {
-			fmt.Printf("ERROR: %s\n", copyErr.Error())
-		} else {
-			copiedFiles = append(copiedFiles, copiedFileName)
-			fmt.Printf("Copied %s (%d/%d)", fileName, i + 1, dotfileCount)
-		}
-	}
-
-	return copiedFiles
 }

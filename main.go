@@ -37,7 +37,3 @@ func handleCommands(args []string) {
 		printHelp()
 	}
 }
-
-func pushDotfiles(apps []GotDotsApp) {
-
-}

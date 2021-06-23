@@ -21,7 +21,6 @@ func createNewPackage(packageName string) {
 
 	manifest := createManifest(packageName, foundApps)
 
-
 	packageTarName, tarErr := makeTarball(manifest, foundApps)
 	if tarErr != nil {
 		fmt.Printf("ERROR: %s\n", tarErr.Error())
@@ -83,7 +82,7 @@ func makeTarball(manifest models.Manifest, apps []GotDotsApp) (string, error) {
 	if len(failedDotfiles) > 0 {
 		fmt.Println("Could not include following dotfiles: ")
 		for i, failedDotfile := range failedDotfiles {
-			fmt.Printf("   %d. %s\n", i + 1, failedDotfile)
+			fmt.Printf("   %d. %s\n", i+1, failedDotfile)
 		}
 	}
 
@@ -99,7 +98,6 @@ func makeTarball(manifest models.Manifest, apps []GotDotsApp) (string, error) {
 	if writeErr != nil {
 		return "", writeErr
 	}
-
 
 	// Create tar.gz file from temporary package folder
 	packTarNamePattern := fmt.Sprintf("gotdots-pack-%s-*.tar.gz", manifest.Name)

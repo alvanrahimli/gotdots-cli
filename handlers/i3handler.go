@@ -7,11 +7,10 @@ import (
 )
 
 type I3WindowManager struct {
-
 }
 
 func (wm I3WindowManager) GetPossibleDotfiles() []string {
-	return []string {
+	return []string{
 		os.ExpandEnv("$HOME/.config/i3/config"),
 		os.ExpandEnv("$HOME/.i3/config"),
 	}
@@ -37,6 +36,7 @@ func (wm I3WindowManager) GetConfigRoot() string {
 }
 
 func (wm I3WindowManager) GetVersion() models.PackageVersion {
+	// TODO: Complete this to return real version
 	return models.PackageVersion{
 		Major: 1,
 		Minor: 1,

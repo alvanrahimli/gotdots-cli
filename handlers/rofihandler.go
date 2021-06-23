@@ -7,11 +7,10 @@ import (
 )
 
 type RofiApp struct {
-
 }
 
 func (app RofiApp) GetPossibleDotfiles() []string {
-	return []string {
+	return []string{
 		os.ExpandEnv("$HOME/.config/rofi/config.rasi"),
 	}
 }
@@ -36,13 +35,13 @@ func (app RofiApp) GetConfigRoot() string {
 }
 
 func (app RofiApp) GetVersion() models.PackageVersion {
+	// TODO: Complete this to return real version
 	return models.PackageVersion{
 		Major: 1,
 		Minor: 1,
 		Patch: 1,
 	}
 }
-
 
 func (app RofiApp) GetName() string {
 	return "rofi"
