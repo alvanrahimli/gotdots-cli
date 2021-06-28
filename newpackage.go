@@ -21,17 +21,22 @@ func createNewPackage(packageName string) {
 
 	manifest := createManifest(packageName, foundApps)
 
-	packageTarName, tarErr := makeTarball(manifest, foundApps)
+	// Make Tarball for package
+	packageArchive, tarErr := createPackageArchive(manifest, foundApps)
 	if tarErr != nil {
 		fmt.Printf("ERROR: %s\n", tarErr.Error())
 		fmt.Println("Could not create tarball")
 		return
 	}
 
-	fmt.Println("Created new file: " + packageTarName)
+	// Push package to registry
+	// TODO: Add functionality to push packages
+	// TODO: Login functionality blocks this todo
+
+	fmt.Println("Created new file: " + packageArchive)
 }
 
-func makeTarball(manifest models.Manifest, apps []GotDotsApp) (string, error) {
+func createPackageArchive(manifest models.Manifest, apps []GotDotsApp) (string, error) {
 	// Create temp folder for package
 	folderNamePattern := fmt.Sprintf("gotdots-pack-%s-*", manifest.Name)
 	tempPackageFolder, mkdirErr := os.MkdirTemp("/tmp", folderNamePattern)
@@ -113,9 +118,6 @@ func makeTarball(manifest models.Manifest, apps []GotDotsApp) (string, error) {
 		return "", tarErr
 	}
 
-	// Push tarball to registry
-	// TODO: Write backend to support package uploads
-
 	return tarFile.Name(), nil
 }
 
@@ -150,4 +152,8 @@ func excludeApps(foundApps []GotDotsApp) []GotDotsApp {
 	}
 
 	return foundApps
+}
+
+func pushPackage(packageName string) error {
+	return nil
 }
