@@ -1,9 +1,11 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type IncludedApp struct {
-	Name	string
+	Name    string
 	Version string
 }
 
@@ -18,11 +20,11 @@ func (p PackageVersion) ToString() string {
 }
 
 type Manifest struct {
-	Id           string         `json:"id"`
-	Name         string         `json:"name"`
-	Version      string 		`json:"version"`
-	IncludedApps []IncludedApp 	`json:"includedApps"`
-	Author       Author         `json:"author"`
+	Id           string        `json:"id"`
+	Name         string        `json:"name"`
+	Version      string        `json:"version"`
+	IncludedApps []IncludedApp `json:"includedApps"`
+	Author       Author        `json:"author"`
 }
 
 type Author struct {

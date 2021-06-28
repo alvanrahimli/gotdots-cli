@@ -15,7 +15,7 @@ import (
 type TarballFileType string
 
 //goland:noinspection GoUnhandledErrorResult
-func CreateTarball(tempPackageFolder, tarballFilePath string) error {
+func CreateTarball(sourceFolder, tarballFilePath string) error {
 	file, err := os.Create(tarballFilePath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create tarball file '%s', got error '%s'",
@@ -29,13 +29,15 @@ func CreateTarball(tempPackageFolder, tarballFilePath string) error {
 	tarWriter := tar.NewWriter(gzipWriter)
 	defer tarWriter.Close()
 
-	walkErr := filepath.Walk(tempPackageFolder, func(path string, info fs.FileInfo, err error) error {
+	walkErr := filepath.Walk(sourceFolder, func(path string, info fs.FileInfo, err error) error {
 		// Skip folders
 		if info.IsDir() {
 			return nil
 		}
 
-		relativePath := normalizePath(tempPackageFolder, path)
+		// Normalize path, so it is not absolute any more
+		relativePath := normalizePath(sourceFolder, path)
+
 		tarWriterErr := addFileToTarWriter(path, relativePath, tarWriter)
 		if tarWriterErr != nil {
 			return tarWriterErr

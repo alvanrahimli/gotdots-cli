@@ -22,7 +22,7 @@ func handleCommands(args []string) {
 			fmt.Println("Please specify package name")
 			return
 		} else {
-			createNewPackage(args[1])
+			createNewPackage(sterilizeString(args[1]))
 		}
 	case "install":
 		if len(args) < 2 {

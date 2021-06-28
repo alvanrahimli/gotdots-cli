@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 	"gotDots/models"
+	"os"
+	"path"
+	"strings"
 )
 
 func getIndexByName(apps []GotDotsApp, name string) int {
@@ -16,9 +19,9 @@ func getIndexByName(apps []GotDotsApp, name string) int {
 }
 
 func deleteByIndex(apps []GotDotsApp, index int) []GotDotsApp {
-	apps[index] = apps[len(apps) - 1]
-	apps[len(apps) - 1] = nil
-	return apps[:len(apps) - 1]
+	apps[index] = apps[len(apps)-1]
+	apps[len(apps)-1] = nil
+	return apps[:len(apps)-1]
 }
 
 func deleteByName(apps []GotDotsApp, name string) []GotDotsApp {
@@ -46,7 +49,7 @@ func printHelp() {
 func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	// TODO: Refactor this function
 
-	fmt.Print("Type version number (ex. 2.1.1): ")
+	fmt.Print("Type version number (ex. 1.0.4): ")
 	version := models.PackageVersion{}
 	_, scanErr := fmt.Scanf("%d.%d.%d", &version.Major, &version.Minor, &version.Patch)
 	if scanErr != nil {
@@ -71,9 +74,42 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 		Name:         packageName,
 		Version:      version.ToString(),
 		IncludedApps: includedApps,
-		Author:       models.Author{
+		Author: models.Author{
 			Name:  "PREDEFINED_VALUE",
 			Email: "PREDEFINED_VALUE",
 		},
 	}
+}
+
+// getArchivesFolder returns $HOME/.dots-archives
+func getArchivesFolder() (string, error) {
+	// Get UserHomeDir
+	userHomeDir, homeDirErr := os.UserHomeDir()
+	if homeDirErr != nil {
+		return "", homeDirErr
+	}
+
+	// Create archives folder
+	archivesFolder := path.Join(userHomeDir, ".dots-archives")
+
+	// Check if directory exists
+	_, statErr := os.Stat(archivesFolder)
+	if statErr != nil {
+		// Create if directory does not exist
+		mkdirErr := os.Mkdir(archivesFolder, os.ModePerm)
+		if mkdirErr != nil {
+			return "", mkdirErr
+		}
+	}
+
+	return archivesFolder, nil
+}
+
+func sterilizeString(str string) string {
+	forbiddenChars := []string{"*", ".", "\"", "/", "\\", "[", "]", ":", ";", "|", ","}
+	for _, char := range forbiddenChars {
+		str = strings.ReplaceAll(str, char, "_")
+	}
+
+	return str
 }

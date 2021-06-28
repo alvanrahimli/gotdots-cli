@@ -104,21 +104,29 @@ func createPackageArchive(manifest models.Manifest, apps []GotDotsApp) (string, 
 		return "", writeErr
 	}
 
-	// Create tar.gz file from temporary package folder
-	packTarNamePattern := fmt.Sprintf("gotdots-pack-%s-*.tar.gz", manifest.Name)
-	tarFile, createErr := os.CreateTemp("/tmp", packTarNamePattern)
-	if createErr != nil {
-		return "", createErr
+	// Get archives folder
+	archivesFolder, folderErr := getArchivesFolder()
+	if folderErr != nil {
+		fmt.Printf("ERROR: %s\n", folderErr.Error())
+		return "", folderErr
 	}
-	defer tarFile.Close()
+
+	// Create tar.gz file from temporary package folder
+	packTarName := fmt.Sprintf("gotdots-pack-%s-%s.tar.gz", manifest.Name, sterilizeString(manifest.Version))
+	packTarFullName := path.Join(archivesFolder, packTarName)
+	//tarFile, createErr := os.Create(path.Join(archivesFolder, packTarName))
+	//if createErr != nil {
+	//	return "", createErr
+	//}
+	//defer tarFile.Close()
 
 	// Create tarball
-	tarErr := utils.CreateTarball(tempPackageFolder, tarFile.Name())
+	tarErr := utils.CreateTarball(tempPackageFolder, packTarFullName)
 	if tarErr != nil {
 		return "", tarErr
 	}
 
-	return tarFile.Name(), nil
+	return packTarFullName, nil
 }
 
 func excludeApps(foundApps []GotDotsApp) []GotDotsApp {
