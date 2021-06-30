@@ -55,16 +55,16 @@ func login() {
 	body, bodyReadErr := io.ReadAll(response.Body)
 	if bodyReadErr != nil {
 		fmt.Printf("ERROR: %s\n", bodyReadErr.Error())
-		panic(bodyReadErr)
-		// return
+		// panic(bodyReadErr)
+		return
 	}
 
 	var loginResponse models.LoginResponse
 	unmarshallErr := json.Unmarshal(body, &loginResponse)
 	if unmarshallErr != nil {
 		fmt.Printf("ERROR: %s\n", unmarshallErr.Error())
-		panic(unmarshallErr)
-		// return
+		// panic(unmarshallErr)
+		return
 	}
 
 	// Write token to file as: "Bearer <token>"
