@@ -161,7 +161,3 @@ func excludeApps(foundApps []GotDotsApp) []GotDotsApp {
 
 	return foundApps
 }
-
-func pushPackage(packageName string) error {
-	return nil
-}

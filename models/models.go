@@ -31,3 +31,12 @@ type Author struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
+
+type LoginDto struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	Token string `json:"token"`
+}

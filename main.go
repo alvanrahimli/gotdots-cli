@@ -31,6 +31,13 @@ func handleCommands(args []string) {
 		} else {
 			installPackage(args[1])
 		}
+	case "login":
+		if len(args) < 1 {
+			fmt.Println("Please specify package name")
+			return
+		} else {
+			login()
+		}
 	case "help":
 		printHelp()
 	default:

@@ -35,3 +35,12 @@ func CopyFile(sourceFile, destinationFile string) error {
 
 	return nil
 }
+
+func WriteToFile(fileName, text string) error {
+	writeErr := os.WriteFile(fileName, []byte(text), 0666)
+	if writeErr != nil {
+		return writeErr
+	}
+
+	return nil
+}
