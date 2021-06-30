@@ -8,6 +8,7 @@ import (
 	"gotDots/utils"
 	"io"
 	"net/http"
+	"os"
 )
 
 func login() {
@@ -25,8 +26,7 @@ func login() {
 		return
 	}
 
-	// backendUrl := os.Getenv("BACKEND_URL")
-	backendUrl := "http://127.0.0.1:5000/api/auth/login"
+	backendUrl := os.Getenv("BACKEND_URL")
 	requestBody, marshallErr := json.Marshal(models.LoginDto{
 		Username: username,
 		Password: password,
@@ -47,8 +47,8 @@ func login() {
 	defer response.Body.Close()
 
 	// Handle failed response
-	if response.StatusCode != 200 {
-		fmt.Printf("Could not login with given credentials. Hint: %s", response.Status)
+	if response.StatusCode == 401 {
+		fmt.Printf("Could not login with given credentials. Hint: %s\n", response.Status)
 		return
 	}
 

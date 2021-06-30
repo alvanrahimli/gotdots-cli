@@ -113,3 +113,17 @@ func sterilizeString(str string) string {
 
 	return str
 }
+
+func loadEnvVariables() {
+	fileContent, readErr := os.ReadFile(".env")
+	if readErr != nil {
+		fmt.Printf("Could not read .env file. ERROR: %s\n", readErr.Error())
+		return
+	}
+
+	variables := strings.Split(string(fileContent), "\n")
+	for _, v := range variables {
+		lineSeperated := strings.Split(v, "=")
+		os.Setenv(lineSeperated[0], lineSeperated[1])
+	}
+}

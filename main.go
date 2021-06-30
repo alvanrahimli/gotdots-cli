@@ -7,6 +7,7 @@ import (
 
 func main() {
 	fmt.Println("=== Welcome to Got-Dots! ===")
+	loadEnvVariables()
 	handleCommands(os.Args[1:])
 }
 
