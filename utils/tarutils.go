@@ -3,11 +3,14 @@ package utils
 import (
 	"archive/tar"
 	"compress/gzip"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"gotDots/models"
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -125,7 +128,7 @@ func Untar(dst string, r io.Reader) error {
 
 		// the target location where the dir/file should be created
 		target := filepath.Join(dst, header.Name)
-		fmt.Println("NOW TARGET: " + target)
+		// fmt.Println("NOW TARGET: " + target)
 
 		// the following switch could also be done using fi.Mode(), not sure if there
 		// a benefit of using one vs. the other.
@@ -159,4 +162,57 @@ func Untar(dst string, r io.Reader) error {
 			f.Close()
 		}
 	}
+}
+
+func ReadManifestFromTar(tarFileName string) models.Manifest {
+	archiveFile, archiveOpenErr := os.Open(tarFileName)
+	if archiveOpenErr != nil {
+		fmt.Printf("ERROR: %s\n", archiveOpenErr.Error())
+		os.Exit(1)
+	}
+
+	gzr, err := gzip.NewReader(archiveFile)
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err.Error())
+		os.Exit(1)
+	}
+	//goland:noinspection GoUnhandledErrorResult
+	defer gzr.Close()
+
+	tr := tar.NewReader(gzr)
+
+	var manifest models.Manifest
+
+	for {
+		header, err := tr.Next()
+		if err != nil {
+			fmt.Printf("ERROR: %s\n", err.Error())
+			continue
+		}
+
+		if header.Name == "manifest.json" {
+			targetFileName := path.Join(os.TempDir(), "manifest.json")
+			targetFile, fileErr := os.OpenFile(targetFileName, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			if fileErr != nil {
+				fmt.Printf("ERROR: %s\n", fileErr.Error())
+				os.Exit(1)
+			}
+
+			if _, err := io.Copy(targetFile, tr); err != nil {
+				fmt.Printf("ERROR: %s\n", err.Error())
+			}
+
+			targetFile.Close()
+
+			fileReader, _ := os.ReadFile(targetFileName)
+			unmarshallErr := json.Unmarshal(fileReader, &manifest)
+			if unmarshallErr != nil {
+				fmt.Printf("ERROR: %s\n", unmarshallErr.Error())
+				os.Exit(1)
+			}
+
+			return manifest
+		}
+	}
+
 }

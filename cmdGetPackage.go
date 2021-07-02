@@ -22,8 +22,7 @@ func getPackage(packName string) {
 	formattedUrl := fmt.Sprintf("%s?name=%s", os.Getenv("GET_PACKAGE_URL"), packName)
 	response, httpErr := http.Get(formattedUrl)
 	if httpErr != nil {
-		fmt.Printf("ERROR: %s\n", httpErr.Error())
-		panic(httpErr)
+		handleError(httpErr, true)
 	}
 
 	if response.StatusCode != http.StatusOK {
@@ -35,17 +34,13 @@ func getPackage(packName string) {
 
 	body, bodyReadErr := io.ReadAll(response.Body)
 	if bodyReadErr != nil {
-		fmt.Printf("ERROR: %s\n", bodyReadErr.Error())
-		// panic(bodyReadErr)
-		return
+		handleError(bodyReadErr, true)
 	}
 
 	var packageInfo models.PackageInfo
 	unmarshallErr := json.Unmarshal(body, &packageInfo)
 	if unmarshallErr != nil {
-		fmt.Printf("ERROR: %s\n", unmarshallErr.Error())
-		panic(unmarshallErr)
-		// return
+		handleError(unmarshallErr, true)
 	}
 
 	packVersionStr := fmt.Sprintf("%d.%d.%d",
@@ -57,29 +52,29 @@ func getPackage(packName string) {
 	// Download package archive
 	archivesFolder, folderErr := getArchivesFolder()
 	if folderErr != nil {
-		panic(folderErr)
+		handleError(folderErr, true)
 	}
 
 	packArchive, downloadErr := utils.DownloadFile(packageInfo.ArchiveUrl, archivesFolder)
 	if downloadErr != nil {
-		fmt.Printf("ERROR: %s\n", downloadErr.Error())
-		panic(downloadErr)
+		handleError(downloadErr, true)
 	}
 
 	archiveFile, openErr := os.Open(packArchive)
 	if openErr != nil {
-		panic(openErr)
+		handleError(openErr, true)
 	}
 
 	packFolder := path.Join("/tmp", packName)
 	mkdirErr := os.Mkdir(packFolder, os.ModePerm)
 	if mkdirErr != nil {
-		return
+		handleError(mkdirErr, true)
 	}
 
-	err := utils.Untar(packFolder, archiveFile)
-	if err != nil {
-		panic(err)
-		// return
+	untarErr := utils.Untar(packFolder, archiveFile)
+	if untarErr != nil {
+		handleError(untarErr, true)
 	}
+
+	// TODO: Continue this...
 }

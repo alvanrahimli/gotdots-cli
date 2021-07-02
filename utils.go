@@ -174,3 +174,32 @@ func readToken() string {
 
 	return tokenStr
 }
+
+func handleError(err error, shouldExit bool) {
+	if shouldExit {
+		os.Exit(1)
+	}
+
+	fmt.Printf("ERROR: %s\n", err.Error())
+}
+
+func encodeIncludedApps(apps []models.IncludedApp) string {
+	var finalStr string
+	// var innerStr []string
+	for _, app := range apps {
+		finalStr += fmt.Sprintf("[IncludedApps][Name]=%s&[IncludedApps][Version]=%s&", app.Name, app.Version)
+		// innerStr = append(innerStr, fmt.Sprintf("%s:%s", app.Name, app.Version))
+	}
+	// finalStr = fmt.Sprintf("[%s]", strings.Join(innerStr, ","))
+
+	return finalStr
+}
+
+func returnList(apps []models.IncludedApp) []string {
+	var list []string
+	for _, app := range apps {
+		list = append(list, fmt.Sprintf("%s:%s", app.Name, app.Version))
+	}
+
+	return list
+}
