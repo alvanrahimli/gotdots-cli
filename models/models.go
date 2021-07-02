@@ -40,3 +40,24 @@ type LoginDto struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type PackageInfo struct {
+	Id         string `json:"id"`
+	Name       string `json:"name"`
+	ArchiveUrl string `json:"archiveUrl"`
+	Version    struct {
+		Major int `json:"major"`
+		Minor int `json:"minor"`
+		Patch int `json:"patch"`
+	} `json:"version"`
+	DownloadCount int	`json:"downloadCount"`
+	Rating        int   `json:"rating"`
+	IncludedApps  []struct{
+		AppName		string
+		Version		struct {
+			Major int `json:"major"`
+			Minor int `json:"minor"`
+			Patch int `json:"patch"`
+		} `json:"version"`
+	} `json:"includedApps"`
+}

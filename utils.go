@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"gotDots/models"
+	"gotDots/utils"
+	"io/fs"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -43,7 +46,11 @@ func getNames(apps []GotDotsApp) []string {
 }
 
 func printHelp() {
-	fmt.Println("Help: ...")
+	fmt.Println("Help: dots <command> <options>")
+	fmt.Println("  	new     <pack name> :	Creates new package with given name")
+	fmt.Println("  	push    <pack name> :	Pushes package to registry (aws s3 for now)")
+	fmt.Println("  	get     <pack name> :	Downloads package")
+	fmt.Println("	install <pack name> :	Installs package to system")
 }
 
 func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
@@ -106,7 +113,7 @@ func getArchivesFolder() (string, error) {
 }
 
 func sterilizeString(str string) string {
-	forbiddenChars := []string{"*", ".", "\"", "/", "\\", "[", "]", ":", ";", "|", ","}
+	forbiddenChars := []string{"*", ".", "\"", "/", "\\", "[", "]", ":", ";", "|", ",", "-"}
 	for _, char := range forbiddenChars {
 		str = strings.ReplaceAll(str, char, "_")
 	}
@@ -126,4 +133,44 @@ func loadEnvVariables() {
 		lineSeperated := strings.Split(v, "=")
 		os.Setenv(lineSeperated[0], lineSeperated[1])
 	}
+}
+
+func findPackageArchive(packName string) string {
+	archiveFolder, folderErr := getArchivesFolder()
+	if folderErr != nil {
+		fmt.Printf("ERROR: %s\n", folderErr.Error())
+		panic(folderErr)
+	}
+
+	var foundPack string
+
+	walkErr := filepath.Walk(archiveFolder, func(path string, info fs.FileInfo, err error) error {
+		// TODO: Refactor this to match whole package name
+		if strings.Contains(path, packName) {
+			foundPack = path
+		}
+
+		return nil
+	})
+
+	if walkErr != nil {
+		fmt.Printf("ERROR: %s\n", walkErr.Error())
+		panic(walkErr)
+	}
+
+	return foundPack
+}
+
+func readToken() string {
+	archivesFolder, folderErr := getArchivesFolder()
+	if folderErr != nil {
+		panic(folderErr)
+	}
+
+	tokenStr, tokenErr := utils.ReadFromFile(path.Join(archivesFolder, "token"))
+	if tokenErr != nil {
+		panic(tokenErr)
+	}
+
+	return tokenStr
 }

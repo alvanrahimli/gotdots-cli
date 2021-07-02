@@ -35,7 +35,7 @@ func (app RofiApp) GetConfigRoot() string {
 }
 
 func (app RofiApp) GetVersion() models.PackageVersion {
-	// TODO: Complete this to return real version
+	// TODO: Implement this function
 	return models.PackageVersion{
 		Major: 1,
 		Minor: 1,
@@ -45,4 +45,10 @@ func (app RofiApp) GetVersion() models.PackageVersion {
 
 func (app RofiApp) GetName() string {
 	return "rofi"
+}
+
+func (app RofiApp) InstallDotfiles(packageFolder string, backup bool) error {
+	fmt.Println("Installing packages...")
+	// TODO: Implement this method
+	return nil
 }

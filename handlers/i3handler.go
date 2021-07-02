@@ -47,3 +47,7 @@ func (wm I3WindowManager) GetVersion() models.PackageVersion {
 func (wm I3WindowManager) GetName() string {
 	return "i3"
 }
+
+func (wm I3WindowManager) InstallDotfiles(packageFolder string, backup bool) error {
+	return nil
+}

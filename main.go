@@ -25,12 +25,19 @@ func handleCommands(args []string) {
 		} else {
 			createNewPackage(sterilizeString(args[1]))
 		}
-	case "install":
+	case "get":
 		if len(args) < 2 {
 			fmt.Println("Please specify package name")
 			return
 		} else {
-			installPackage(args[1])
+			getPackage(args[1])
+		}
+	case "push":
+		if len(args) < 2 {
+			fmt.Println("Please specify package name")
+			return
+		} else {
+			pushPackage(args[1])
 		}
 	case "login":
 		if len(args) < 1 {

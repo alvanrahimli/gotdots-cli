@@ -11,7 +11,7 @@ import (
 
 func getSupportedApps() map[string]GotDotsApp {
 	return map[string]GotDotsApp{
-		"i3": handlers.I3WindowManager{},
+		"i3":   handlers.I3WindowManager{},
 		"rofi": handlers.RofiApp{},
 	}
 }
@@ -27,6 +27,8 @@ type GotDotsApp interface {
 	GetVersion() models.PackageVersion
 	// GetName returns name of app's executable file
 	GetName() string
+	// InstallDotfiles backups old files and installs new files
+	InstallDotfiles(packageFolder string, backup bool) error
 }
 
 func ScanForApps() []GotDotsApp {
