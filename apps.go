@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
 	"gotDots/handlers"
 	"gotDots/models"
 	"os/exec"
@@ -45,21 +43,12 @@ func ScanForApps() []GotDotsApp {
 }
 
 func isAppInstalled(appName string) bool {
-	// TODO: Change this and use os.Stat(...)
-
-	cmd := exec.Command("whereis", appName)
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		fmt.Printf("Error occured: %s\n", err.Error())
+	_, lookupErr := exec.LookPath(appName)
+	if lookupErr != nil {
 		return false
 	}
 
-	output := out.String()
-	colonSplitted := strings.Split(output, ":")
-
-	return len(colonSplitted[1]) > 1
+	return true
 }
 
 // getRelativePath returns relative path of dotfile relative to ConfigRoot
