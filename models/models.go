@@ -23,6 +23,7 @@ type Manifest struct {
 	Id           string        `json:"id"`
 	Name         string        `json:"name"`
 	Version      string        `json:"version"`
+	Visibility   string        `json:"visibility"`
 	IncludedApps []IncludedApp `json:"includedApps"`
 	Author       Author        `json:"author"`
 }

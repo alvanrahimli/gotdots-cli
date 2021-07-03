@@ -19,14 +19,14 @@ func getPackage(packName string) {
 	// + TODO: Install config files (Handlers should implement installation function)
 
 	// Get package info
-	formattedUrl := fmt.Sprintf("%s?name=%s", os.Getenv("GET_PACKAGE_URL"), packName)
+	formattedUrl := fmt.Sprintf("%s?packageId=%s", os.Getenv("GET_PACKAGE_URL"), packName)
 	response, httpErr := http.Get(formattedUrl)
 	if httpErr != nil {
 		handleError(httpErr, true)
 	}
 
 	if response.StatusCode != http.StatusOK {
-		fmt.Printf("Error occured while fetching package info: %s", response.Status)
+		fmt.Printf("Error occured while fetching package info: %s\n", response.Status)
 		return
 	}
 	//goland:noinspection ALL
@@ -46,8 +46,7 @@ func getPackage(packName string) {
 	packVersionStr := fmt.Sprintf("%d.%d.%d",
 		packageInfo.Version.Major, packageInfo.Version.Minor, packageInfo.Version.Patch)
 
-	fmt.Printf("Downloading package archive for: %s (%s)\n",
-		packageInfo.Name, packVersionStr)
+	fmt.Printf("Downloading package archive for: %s (%s)\n", packageInfo.Name, packVersionStr)
 
 	// Download package archive
 	archivesFolder, folderErr := getArchivesFolder()

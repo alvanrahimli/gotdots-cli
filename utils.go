@@ -77,14 +77,32 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 		})
 	}
 
+	var visibility string
+	choice, choiceErr := getYesNoChoice("Do you want to make package Public?")
+	if choiceErr != nil {
+		fmt.Println("Could not get choice")
+		os.Exit(1)
+	}
+
+	if choice == models.YES {
+		visibility = "Public"
+	} else if choice == models.NO {
+		visibility = "Private"
+	}
+
+	// TODO: Get userinfo
+	var username = "USERNAME"
+	var email = "EMAIL"
+
 	return models.Manifest{
-		Id:           "",
+		Id:           fmt.Sprintf("org.gotdots.%s.%s", username, packageName),
 		Name:         packageName,
 		Version:      version.ToString(),
+		Visibility:   visibility,
 		IncludedApps: includedApps,
 		Author: models.Author{
-			Name:  "PREDEFINED_VALUE",
-			Email: "PREDEFINED_VALUE",
+			Name:  username,
+			Email: email,
 		},
 	}
 }

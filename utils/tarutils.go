@@ -148,11 +148,11 @@ func Untar(dst string, r io.Reader) error {
 		case tar.TypeReg:
 			f, err := os.Create(target)
 			if err != nil {
-				fmt.Println("Could not create " + target + ". Creating parent directories")
+				// fmt.Println("Could not create " + target + ". Creating parent directories")
 				folders := strings.Split(target, "/")
 				mkdirAllErr := os.MkdirAll(strings.Join(folders[:len(folders)-1], "/"), os.ModePerm)
 				if mkdirAllErr != nil {
-					fmt.Println("Could not create parent directories. Skipping this file")
+					fmt.Printf("Could not create parent directories for %s. Skipping this file\n", target)
 					fmt.Printf("ERROR: %s\n", mkdirAllErr.Error())
 					continue
 				}
@@ -164,7 +164,7 @@ func Untar(dst string, r io.Reader) error {
 				return err
 			}
 
-			// manually close here after each file operation; defering would cause each file close
+			// manually close here after each file operation; deferring would cause each file close
 			// to wait until all operations have completed.
 			f.Close()
 		}

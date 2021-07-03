@@ -44,15 +44,14 @@ func pushPackage(packName string) {
 
 	// appsList := fmt.Sprintf("[%s]", strings.Join(returnList(manifest.IncludedApps), ","))
 	appsList := encodeIncludedApps(manifest.IncludedApps)
-	fmt.Println(appsList)
 
 	values := map[string]io.Reader{
-		"PackageArchive":   mustOpen(packArchive),
+		"Id":               strings.NewReader(manifest.Id),
 		"Name":             strings.NewReader(manifest.Name),
 		"Version":          strings.NewReader(manifest.Version),
 		"IncludedAppsJson": strings.NewReader(appsList),
-		// TODO: Support Private packages
-		"Visibility": strings.NewReader("Public"),
+		"PackageArchive":   mustOpen(packArchive),
+		"Visibility":       strings.NewReader(manifest.Visibility),
 	}
 
 	err := Upload(client, remoteURL, values, token)
