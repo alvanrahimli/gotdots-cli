@@ -43,12 +43,9 @@ func ScanForApps() []GotDotsApp {
 }
 
 func isAppInstalled(appName string) bool {
-	_, lookupErr := exec.LookPath(appName)
-	if lookupErr != nil {
-		return false
-	}
-
-	return true
+	// Get absolute path of app's executable file
+	appPath, err := exec.LookPath(appName)
+	return appPath != "" && err == nil
 }
 
 // getRelativePath returns relative path of dotfile relative to ConfigRoot
