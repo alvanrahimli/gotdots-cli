@@ -50,14 +50,21 @@ type PackageInfo struct {
 		Minor int `json:"minor"`
 		Patch int `json:"patch"`
 	} `json:"version"`
-	DownloadCount int	`json:"downloadCount"`
-	Rating        int   `json:"rating"`
-	IncludedApps  []struct{
-		AppName		string
-		Version		struct {
+	DownloadCount int `json:"downloadCount"`
+	Rating        int `json:"rating"`
+	IncludedApps  []struct {
+		AppName string
+		Version struct {
 			Major int `json:"major"`
 			Minor int `json:"minor"`
 			Patch int `json:"patch"`
 		} `json:"version"`
 	} `json:"includedApps"`
 }
+
+type Choice string
+
+const (
+	YES Choice = "yes"
+	NO  Choice = "no"
+)

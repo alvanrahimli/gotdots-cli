@@ -52,7 +52,7 @@ func isAppInstalled(appName string) bool {
 // ex. Relative to "$HOME/.config/i3" for "$HOME/.config/i3/config" (returns "config")
 func getRelativePath(app GotDotsApp, dotfile string) string {
 	relativePath := strings.Replace(dotfile, app.GetConfigRoot(), "", -1)
-	// Make sure path is not absolute
+	// This check makes sure path is not absolute
 	if relativePath[0:1] == "/" {
 		relativePath = relativePath[1:]
 	}

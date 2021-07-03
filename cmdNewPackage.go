@@ -10,19 +10,32 @@ import (
 )
 
 func createNewPackage(packageName string) {
+	// Detect installed apps
 	foundApps := ScanForApps()
 	if len(foundApps) == 0 {
 		fmt.Println("No supported app found. \nPlease contact or consider contributing! <3")
 		return
 	}
 
-	// Redirect to exclude apps dialogue
-	foundApps = excludeApps(foundApps)
+	// Ask if user wants to exclude apps from package
+	appNames := getNames(foundApps)
+	fmt.Println("Following apps found on system. ")
+	utils.ListNames("   ", appNames)
+	choice, err := getYesNoChoice("Do you want to exclude apps?")
+	if err != nil {
+		fmt.Println("Error occurred while asking choice")
+		return
+	}
 
+	if choice == models.YES {
+		foundApps = excludeApps(foundApps)
+	}
+
+	// Create manifest
 	manifest := createManifest(packageName, foundApps)
 
 	// Make Tarball for package
-	packageArchive, tarErr := createPackageArchive(manifest, foundApps)
+	packageArchive, tarErr := createPackageArchive(&manifest, foundApps)
 	if tarErr != nil {
 		fmt.Printf("ERROR: %s\n", tarErr.Error())
 		fmt.Println("Could not create tarball")
@@ -32,7 +45,7 @@ func createNewPackage(packageName string) {
 	fmt.Println("Created new package at: " + packageArchive)
 }
 
-func createPackageArchive(manifest models.Manifest, apps []GotDotsApp) (string, error) {
+func createPackageArchive(manifest *models.Manifest, apps []GotDotsApp) (string, error) {
 	// Create temp folder for package
 	folderNamePattern := fmt.Sprintf("gotdots-pack-%s-*", manifest.Name)
 	tempPackageFolder, mkdirErr := os.MkdirTemp("/tmp", folderNamePattern)

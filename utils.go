@@ -57,7 +57,7 @@ func printHelp() {
 func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	// TODO: Refactor this function
 
-	fmt.Print("Type version number (ex. 1.0.4): ")
+	fmt.Print("Type version number (ex. 1.2.3): ")
 	version := models.PackageVersion{}
 	_, scanErr := fmt.Scanf("%d.%d.%d", &version.Major, &version.Minor, &version.Patch)
 	if scanErr != nil {
@@ -136,6 +136,7 @@ func loadEnvVariables() {
 	}
 }
 
+// findPackageArchive returns archive's path for given package
 func findPackageArchive(packName string) string {
 	archiveFolder, folderErr := getArchivesFolder()
 	if folderErr != nil {
@@ -207,4 +208,21 @@ func readManifestFile(fileAddress string) models.Manifest {
 	}
 
 	return manifest
+}
+
+func getYesNoChoice(question string) (models.Choice, error) {
+	fmt.Printf("%s (Y/n)", question)
+	var choice string
+	_, scanErr := fmt.Scanln(&choice)
+	if scanErr != nil {
+		return models.NO, scanErr
+	}
+
+	// Default is Y
+	if choice == "" || choice == "Y" || choice == "y" {
+		return models.YES, nil
+	} else {
+		return models.NO, nil
+	}
+
 }
