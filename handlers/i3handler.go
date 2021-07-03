@@ -3,7 +3,11 @@ package handlers
 import (
 	"fmt"
 	"gotDots/models"
+	"gotDots/utils"
+	"io/fs"
 	"os"
+	"path"
+	"path/filepath"
 )
 
 type I3WindowManager struct {
@@ -49,5 +53,23 @@ func (wm I3WindowManager) GetName() string {
 }
 
 func (wm I3WindowManager) InstallDotfiles(packageFolder string, backup bool) error {
+	fmt.Printf("Installing %s packages...\n", wm.GetName())
+	// TODO: Check nested folders
+	i3Dotfiles := path.Join(packageFolder, "dotfiles", wm.GetName())
+	walkErr := filepath.Walk(i3Dotfiles, func(path string, info fs.FileInfo, err error) error {
+		if !info.IsDir() {
+			copyErr := utils.CopyFileToFolder(path, wm.GetConfigRoot())
+			if copyErr != nil {
+				return copyErr
+			}
+		}
+
+		return nil
+	})
+	if walkErr != nil {
+		return walkErr
+	}
+
+	fmt.Printf("Finished installing for %s\n", wm.GetName())
 	return nil
 }

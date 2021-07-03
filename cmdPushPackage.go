@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"gotDots/utils"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -23,6 +24,8 @@ func pushPackage(packName string) {
 	token := readToken()
 	backendUrl := os.Getenv("CREATE_PACKAGE_URL")
 
+	manifest := utils.ReadManifestFromTar(packArchive)
+
 	var client *http.Client
 	var remoteURL string
 	{
@@ -30,23 +33,28 @@ func pushPackage(packName string) {
 		ts := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			b, err := httputil.DumpRequest(r, true)
 			if err != nil {
-				panic(err)
+				handleError(err, true)
 			}
 			fmt.Printf("%s", b)
 		}))
 		defer ts.Close()
 		client = ts.Client()
-		// remoteURL = ts.URL
 		remoteURL = backendUrl
 	}
 
-	//prepare the reader instances to encode
+	// appsList := fmt.Sprintf("[%s]", strings.Join(returnList(manifest.IncludedApps), ","))
+	appsList := encodeIncludedApps(manifest.IncludedApps)
+	fmt.Println(appsList)
+
 	values := map[string]io.Reader{
-		"PackageArchive": mustOpen(packArchive),
-		"Name":           strings.NewReader(packName),
-		"Version":        strings.NewReader("1.0.0"),
-		"Visibility":     strings.NewReader("Public"),
+		"PackageArchive":   mustOpen(packArchive),
+		"Name":             strings.NewReader(manifest.Name),
+		"Version":          strings.NewReader(manifest.Version),
+		"IncludedAppsJson": strings.NewReader(appsList),
+		// TODO: Support Private packages
+		"Visibility": strings.NewReader("Public"),
 	}
+
 	err := Upload(client, remoteURL, values, token)
 	if err != nil {
 		panic(err)

@@ -14,7 +14,7 @@ import (
 func getPackage(packName string) {
 	// + TODO: Get package info from /packages/{packName}
 	// + TODO: Download archive to $HOME/.dots-archives/
-	// TODO: UnTar archive to /tmp/
+	// + TODO: UnTar archive to /tmp/
 	// TODO: Read included apps from manifest, check installation status
 	// TODO: Install config files (Handlers should implement installation function)
 
@@ -60,21 +60,41 @@ func getPackage(packName string) {
 		handleError(downloadErr, true)
 	}
 
+	// Extract archive
 	archiveFile, openErr := os.Open(packArchive)
 	if openErr != nil {
 		handleError(openErr, true)
 	}
 
-	packFolder := path.Join("/tmp", packName)
-	mkdirErr := os.Mkdir(packFolder, os.ModePerm)
+	packFolder := fmt.Sprintf("dots-pack-%s-*", packName)
+	tempFolder, mkdirErr := os.MkdirTemp(os.TempDir(), packFolder)
 	if mkdirErr != nil {
 		handleError(mkdirErr, true)
 	}
 
-	untarErr := utils.Untar(packFolder, archiveFile)
+	untarErr := utils.Untar(tempFolder, archiveFile)
 	if untarErr != nil {
 		handleError(untarErr, true)
 	}
 
-	// TODO: Continue this...
+	fmt.Println("Folder created at: " + tempFolder)
+
+	supportedApps := getSupportedApps()
+	// Read manifest file
+	manifest := readManifestFile(path.Join(tempFolder, "manifest.json"))
+	for _, app := range manifest.IncludedApps {
+		// TODO: Pass version of app
+		isInstalled := isAppInstalled(app.Name)
+		if !isInstalled {
+			fmt.Printf("'%s' (%s) is not installed on your system. \n", app.Name, app.Version)
+			// TODO: Handle if user wants to install app
+			continue
+		}
+
+		installationErr := supportedApps[app.Name].InstallDotfiles(tempFolder, false)
+		if installationErr != nil {
+			handleError(installationErr, false)
+		}
+	}
+
 }

@@ -41,6 +41,37 @@ func CopyFile(sourceFile, destinationFile string) error {
 	return nil
 }
 
+func CopyFileToFolder(sourceFile, destinationFolder string) error {
+	sourceFileStat, statErr := os.Stat(sourceFile)
+	if statErr != nil {
+		return statErr
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", sourceFile)
+	}
+
+	source, fileOpenErr := os.Open(sourceFile)
+	if fileOpenErr != nil {
+		return fileOpenErr
+	}
+	defer source.Close()
+
+	_, fileName := path.Split(sourceFile)
+	destination, destErr := os.Create(path.Join(destinationFolder, fileName))
+	if destErr != nil {
+		return destErr
+	}
+	defer destination.Close()
+
+	_, copyErr := io.Copy(destination, source)
+	if copyErr != nil {
+		return copyErr
+	}
+
+	return nil
+}
+
 func WriteToFile(fileName, text string) error {
 	writeErr := os.WriteFile(fileName, []byte(text), 0666)
 	if writeErr != nil {

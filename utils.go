@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"gotDots/models"
 	"gotDots/utils"
@@ -176,30 +177,34 @@ func readToken() string {
 }
 
 func handleError(err error, shouldExit bool) {
+	fmt.Printf("ERROR: %s\n", err.Error())
 	if shouldExit {
 		os.Exit(1)
 	}
-
-	fmt.Printf("ERROR: %s\n", err.Error())
 }
 
 func encodeIncludedApps(apps []models.IncludedApp) string {
-	var finalStr string
-	// var innerStr []string
-	for _, app := range apps {
-		finalStr += fmt.Sprintf("[IncludedApps][Name]=%s&[IncludedApps][Version]=%s&", app.Name, app.Version)
-		// innerStr = append(innerStr, fmt.Sprintf("%s:%s", app.Name, app.Version))
+	jsonApps, jsonErr := json.Marshal(apps)
+	if jsonErr != nil {
+		fmt.Println("Error occurred while marshalling included apps")
+		fmt.Printf("ERROR: %s\n", jsonErr.Error())
+		os.Exit(1)
 	}
-	// finalStr = fmt.Sprintf("[%s]", strings.Join(innerStr, ","))
 
-	return finalStr
+	return string(jsonApps)
 }
 
-func returnList(apps []models.IncludedApp) []string {
-	var list []string
-	for _, app := range apps {
-		list = append(list, fmt.Sprintf("%s:%s", app.Name, app.Version))
+func readManifestFile(fileAddress string) models.Manifest {
+	manifestJson, readErr := os.ReadFile(fileAddress)
+	if readErr != nil {
+		handleError(readErr, true)
 	}
 
-	return list
+	manifest := models.Manifest{}
+	marshallErr := json.Unmarshal(manifestJson, &manifest)
+	if marshallErr != nil {
+		handleError(marshallErr, true)
+	}
+
+	return manifest
 }

@@ -10,7 +10,6 @@ import (
 	"io"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 )
@@ -147,9 +146,17 @@ func Untar(dst string, r io.Reader) error {
 
 		// if it's a file create it
 		case tar.TypeReg:
-			f, err := os.OpenFile(target, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			f, err := os.Create(target)
 			if err != nil {
-				return err
+				fmt.Println("Could not create " + target + ". Creating parent directories")
+				folders := strings.Split(target, "/")
+				mkdirAllErr := os.MkdirAll(strings.Join(folders[:len(folders)-1], "/"), os.ModePerm)
+				if mkdirAllErr != nil {
+					fmt.Println("Could not create parent directories. Skipping this file")
+					fmt.Printf("ERROR: %s\n", mkdirAllErr.Error())
+					continue
+				}
+				f, _ = os.Create(target)
 			}
 
 			// copy over contents
@@ -167,12 +174,14 @@ func Untar(dst string, r io.Reader) error {
 func ReadManifestFromTar(tarFileName string) models.Manifest {
 	archiveFile, archiveOpenErr := os.Open(tarFileName)
 	if archiveOpenErr != nil {
+		fmt.Println("Error occurred while opening archive")
 		fmt.Printf("ERROR: %s\n", archiveOpenErr.Error())
 		os.Exit(1)
 	}
 
 	gzr, err := gzip.NewReader(archiveFile)
 	if err != nil {
+		fmt.Println("Error occurred while opening gzip reader")
 		fmt.Printf("ERROR: %s\n", err.Error())
 		os.Exit(1)
 	}
@@ -186,27 +195,39 @@ func ReadManifestFromTar(tarFileName string) models.Manifest {
 	for {
 		header, err := tr.Next()
 		if err != nil {
+			fmt.Println("Error occurred while getting next header from tar")
 			fmt.Printf("ERROR: %s\n", err.Error())
 			continue
 		}
 
 		if header.Name == "manifest.json" {
-			targetFileName := path.Join(os.TempDir(), "manifest.json")
-			targetFile, fileErr := os.OpenFile(targetFileName, os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
+			tempManifestFile, err := os.CreateTemp("/tmp", "")
+			defer tempManifestFile.Close()
+
+			if err != nil {
+				fmt.Println("Error occurred while creating temp manifest file")
+				fmt.Printf("ERROR: %s\n", err.Error())
+				os.Exit(1)
+			}
+
+			targetFile, fileErr := os.OpenFile(tempManifestFile.Name(), os.O_CREATE|os.O_RDWR, os.FileMode(header.Mode))
 			if fileErr != nil {
+				fmt.Println("Error occurred while opening/creating file while untar process")
 				fmt.Printf("ERROR: %s\n", fileErr.Error())
 				os.Exit(1)
 			}
 
 			if _, err := io.Copy(targetFile, tr); err != nil {
+				fmt.Println("Error occurred copying file while untar process")
 				fmt.Printf("ERROR: %s\n", err.Error())
 			}
 
 			targetFile.Close()
 
-			fileReader, _ := os.ReadFile(targetFileName)
+			fileReader, _ := os.ReadFile(tempManifestFile.Name())
 			unmarshallErr := json.Unmarshal(fileReader, &manifest)
 			if unmarshallErr != nil {
+				fmt.Println("Error occurred while unmarshalling manifest file")
 				fmt.Printf("ERROR: %s\n", unmarshallErr.Error())
 				os.Exit(1)
 			}
