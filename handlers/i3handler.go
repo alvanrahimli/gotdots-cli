@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"gotDots/models"
 	"gotDots/utils"
 	"io/fs"
 	"os"
@@ -39,13 +38,9 @@ func (wm I3WindowManager) GetConfigRoot() string {
 	return os.ExpandEnv("$HOME/.config/i3")
 }
 
-func (wm I3WindowManager) GetVersion() models.PackageVersion {
+func (wm I3WindowManager) GetVersion() string {
 	// TODO: Complete this to return real version
-	return models.PackageVersion{
-		Major: 1,
-		Minor: 1,
-		Patch: 1,
-	}
+	return "1.0.0-alpha"
 }
 
 func (wm I3WindowManager) GetName() string {

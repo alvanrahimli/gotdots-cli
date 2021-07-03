@@ -82,7 +82,6 @@ func getPackage(packName string) {
 	// Read manifest file
 	manifest := readManifestFile(path.Join(tempFolder, "manifest.json"))
 	for _, app := range manifest.IncludedApps {
-		// TODO: Pass version of app
 		isInstalled := isAppInstalled(app.Name)
 		if !isInstalled {
 			fmt.Printf("'%s' (%s) is not installed on your system. \n", app.Name, app.Version)

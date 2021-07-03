@@ -2,7 +2,6 @@ package main
 
 import (
 	"gotDots/handlers"
-	"gotDots/models"
 	"os/exec"
 	"strings"
 )
@@ -22,7 +21,7 @@ type GotDotsApp interface {
 	// GetConfigRoot returns root directory where dotfile(s) are located
 	GetConfigRoot() string
 	// GetVersion returns version number of app
-	GetVersion() models.PackageVersion
+	GetVersion() string
 	// GetName returns name of app's executable file
 	GetName() string
 	// InstallDotfiles backups old files and installs new files

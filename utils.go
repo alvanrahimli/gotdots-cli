@@ -55,8 +55,6 @@ func printHelp() {
 }
 
 func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
-	// TODO: Refactor this function
-
 	fmt.Print("Type version number (ex. 1.2.3): ")
 	version := models.PackageVersion{}
 	_, scanErr := fmt.Scanf("%d.%d.%d", &version.Major, &version.Minor, &version.Patch)
@@ -73,7 +71,7 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	for _, app := range apps {
 		includedApps = append(includedApps, models.IncludedApp{
 			Name:    app.GetName(),
-			Version: app.GetVersion().ToString(),
+			Version: app.GetVersion(),
 		})
 	}
 
@@ -150,7 +148,10 @@ func loadEnvVariables() {
 	variables := strings.Split(string(fileContent), "\n")
 	for _, v := range variables {
 		lineSeperated := strings.Split(v, "=")
-		os.Setenv(lineSeperated[0], lineSeperated[1])
+		envErr := os.Setenv(lineSeperated[0], lineSeperated[1])
+		if envErr != nil {
+			return
+		}
 	}
 }
 

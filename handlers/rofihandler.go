@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"gotDots/models"
 	"gotDots/utils"
 	"io/fs"
 	"os"
@@ -38,13 +37,9 @@ func (app RofiApp) GetConfigRoot() string {
 	return os.ExpandEnv("$HOME/.config/rofi")
 }
 
-func (app RofiApp) GetVersion() models.PackageVersion {
-	// TODO: Implement this function
-	return models.PackageVersion{
-		Major: 1,
-		Minor: 1,
-		Patch: 1,
-	}
+func (app RofiApp) GetVersion() string {
+	// TODO: Complete this to return real version
+	return "test-version"
 }
 
 func (app RofiApp) GetName() string {
