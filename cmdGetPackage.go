@@ -12,11 +12,11 @@ import (
 )
 
 func getPackage(packName string) {
-	// + TODO: Get package info from /packages/{packName}
-	// + TODO: Download archive to $HOME/.dots-archives/
-	// + TODO: UnTar archive to /tmp/
-	// + TODO: Read included apps from manifest, check installation status
-	// + TODO: Install config files (Handlers should implement installation function)
+	// Get package info from /packages/{packName}
+	// Download archive to $HOME/.dots-archives/
+	// UnTar archive to /tmp/
+	// Read included apps from manifest, check installation status
+	// Install config files (Handlers should implement installation function)
 
 	// Get package info
 	formattedUrl := fmt.Sprintf("%s?packageId=%s", os.Getenv("GET_PACKAGE_URL"), packName)

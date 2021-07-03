@@ -27,6 +27,16 @@ func CopyFile(sourceFile, destinationFile string) error {
 	}
 	defer source.Close()
 
+	dir, _ := path.Split(destinationFile)
+
+	_, statErr = os.Stat(dir)
+	if statErr != nil {
+		mkdirErr := os.Mkdir(dir, os.ModePerm)
+		if mkdirErr != nil {
+			return mkdirErr
+		}
+	}
+
 	destination, destErr := os.Create(destinationFile)
 	if destErr != nil {
 		return destErr

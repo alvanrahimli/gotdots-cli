@@ -3,7 +3,11 @@ package handlers
 import (
 	"fmt"
 	"gotDots/models"
+	"gotDots/utils"
+	"io/fs"
 	"os"
+	"path"
+	"path/filepath"
 )
 
 type RofiApp struct {
@@ -48,7 +52,34 @@ func (app RofiApp) GetName() string {
 }
 
 func (app RofiApp) InstallDotfiles(packageFolder string, backup bool) error {
-	fmt.Println("Installing packages...")
-	// TODO: Implement this method
+	fmt.Printf("Installing %s packages...\n", app.GetName())
+	rofiDotfiles := path.Join(packageFolder, "dotfiles", app.GetName())
+	walkErr := filepath.Walk(rofiDotfiles, func(path string, info fs.FileInfo, err error) error {
+
+		//fmt.Println("Walking: " + path)
+		if info.IsDir() {
+			_, statErr := os.Stat(path)
+			if os.IsNotExist(statErr) {
+				mkdirErr := os.Mkdir(path, os.ModePerm)
+				if mkdirErr != nil {
+					return mkdirErr
+				}
+			}
+		} else {
+			copyErr := utils.CopyFileToFolder(path, app.GetConfigRoot())
+			if copyErr != nil {
+				return copyErr
+			}
+
+			return nil
+		}
+
+		return nil
+	})
+	if walkErr != nil {
+		return walkErr
+	}
+
+	fmt.Printf("Finished installing for %s\n", app.GetName())
 	return nil
 }

@@ -54,14 +54,25 @@ func (wm I3WindowManager) GetName() string {
 
 func (wm I3WindowManager) InstallDotfiles(packageFolder string, backup bool) error {
 	fmt.Printf("Installing %s packages...\n", wm.GetName())
-	// TODO: Check nested folders
 	i3Dotfiles := path.Join(packageFolder, "dotfiles", wm.GetName())
 	walkErr := filepath.Walk(i3Dotfiles, func(path string, info fs.FileInfo, err error) error {
-		if !info.IsDir() {
+
+		//fmt.Println("Walking: " + path)
+		if info.IsDir() {
+			_, statErr := os.Stat(path)
+			if os.IsNotExist(statErr) {
+				mkdirErr := os.Mkdir(path, os.ModePerm)
+				if mkdirErr != nil {
+					return mkdirErr
+				}
+			}
+		} else {
 			copyErr := utils.CopyFileToFolder(path, wm.GetConfigRoot())
 			if copyErr != nil {
 				return copyErr
 			}
+
+			return nil
 		}
 
 		return nil
