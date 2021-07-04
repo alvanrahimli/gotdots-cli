@@ -2,13 +2,13 @@ package utils
 
 import (
 	"fmt"
+	"gotDots/models"
 	"io"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
-	"strings"
 )
 
 func CopyFile(sourceFile, destinationFile string) error {
@@ -107,15 +107,35 @@ func DownloadFile(fileUrl, dest string) (string, error) {
 		log.Fatal(err)
 	}
 	filePath := fileURL.Path
-	segments := strings.Split(filePath, "/")
-	fileName := segments[len(segments)-1]
+	_, fileName := path.Split(filePath)
+
+	// Create blank file absolute path
+	finalFile := path.Join(dest, fileName)
+
+	_, statErr := os.Stat(finalFile)
+	// If file exists,
+	if statErr == nil {
+		questionText := fmt.Sprintf("File with name '%s' found. \nWhould you like to remove that?", fileName)
+		choice := GetYesNoChoice(questionText, models.YES)
+
+		if choice == models.YES {
+			removeErr := os.Remove(finalFile)
+			if removeErr != nil {
+				fmt.Println("Could not delete file")
+				return "", removeErr
+			}
+		} else if choice == models.NO {
+			fmt.Println("Operation cancelled")
+			os.Exit(1)
+		}
+	}
 
 	// Create blank file
-	finalFile := path.Join(dest, fileName)
 	file, err := os.Create(finalFile)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	client := http.Client{
 		CheckRedirect: func(r *http.Request, via []*http.Request) error {
 			r.URL.Opaque = r.URL.Path

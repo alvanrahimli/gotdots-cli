@@ -8,7 +8,6 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path"
 )
 
 func getPackage(packName string) {
@@ -54,45 +53,16 @@ func getPackage(packName string) {
 		handleError(folderErr, true)
 	}
 
-	packArchive, downloadErr := utils.DownloadFile(packageInfo.ArchiveUrl, archivesFolder)
+	_, downloadErr := utils.DownloadFile(packageInfo.ArchiveUrl, archivesFolder)
 	if downloadErr != nil {
 		handleError(downloadErr, true)
 	}
 
-	// Extract archive
-	archiveFile, openErr := os.Open(packArchive)
-	if openErr != nil {
-		handleError(openErr, true)
+	choice := utils.GetYesNoChoice("Do you want to install package now?", models.YES)
+
+	if choice == models.YES {
+		installPackage(packName)
+	} else if choice == models.NO {
+		fmt.Printf("You can install package by typing\n   dots install %s\nlater\n", packName)
 	}
-
-	packFolder := fmt.Sprintf("dots-pack-%s-*", packName)
-	tempFolder, mkdirErr := os.MkdirTemp(os.TempDir(), packFolder)
-	if mkdirErr != nil {
-		handleError(mkdirErr, true)
-	}
-
-	untarErr := utils.Untar(tempFolder, archiveFile)
-	if untarErr != nil {
-		handleError(untarErr, true)
-	}
-
-	fmt.Println("Folder created at: " + tempFolder)
-
-	supportedApps := getSupportedApps()
-	// Read manifest file
-	manifest := readManifestFile(path.Join(tempFolder, "manifest.json"))
-	for _, app := range manifest.IncludedApps {
-		isInstalled := isAppInstalled(app.Name)
-		if !isInstalled {
-			fmt.Printf("'%s' (%s) is not installed on your system. \n", app.Name, app.Version)
-			// TODO: Handle if user wants to install app
-			continue
-		}
-
-		installationErr := supportedApps[app.Name].InstallDotfiles(tempFolder, false)
-		if installationErr != nil {
-			handleError(installationErr, false)
-		}
-	}
-
 }

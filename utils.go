@@ -76,11 +76,7 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	}
 
 	var visibility string
-	choice, choiceErr := getYesNoChoice("Do you want to make package Public?", models.YES)
-	if choiceErr != nil {
-		fmt.Println("Could not get choice")
-		os.Exit(1)
-	}
+	choice := utils.GetYesNoChoice("Do you want to make package Public?", models.YES)
 
 	if choice == models.YES {
 		visibility = "Public"
@@ -127,15 +123,6 @@ func getArchivesFolder() (string, error) {
 	}
 
 	return archivesFolder, nil
-}
-
-func sterilizeString(str string) string {
-	forbiddenChars := []string{"*", ".", "\"", "/", "\\", "[", "]", ":", ";", "|", ",", "-"}
-	for _, char := range forbiddenChars {
-		str = strings.ReplaceAll(str, char, "_")
-	}
-
-	return str
 }
 
 func loadEnvVariables() {
@@ -226,30 +213,4 @@ func readManifestFile(fileAddress string) models.Manifest {
 	}
 
 	return manifest
-}
-
-func getYesNoChoice(question string, defaultChoice models.Choice) (models.Choice, error) {
-	var alternateChoice models.Choice
-
-	if defaultChoice == models.YES {
-		alternateChoice = models.NO
-		fmt.Printf("%s (Y/n)", question)
-	} else if defaultChoice == models.NO {
-		alternateChoice = models.YES
-		fmt.Printf("%s (y/N)", question)
-	}
-
-	var choice string
-	_, scanErr := fmt.Scanln(&choice)
-	if scanErr != nil {
-		return defaultChoice, nil
-	}
-
-	// Default is Y
-	if choice == "" || choice == "Y" || choice == "y" {
-		return defaultChoice, nil
-	} else {
-		return alternateChoice, nil
-	}
-
 }

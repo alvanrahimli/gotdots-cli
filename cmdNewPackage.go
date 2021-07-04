@@ -29,11 +29,7 @@ func createNewPackage(packageName string) {
 	appNames := getNames(foundApps)
 	fmt.Println("Following apps found on system. ")
 	utils.ListNames("   ", appNames)
-	choice, err := getYesNoChoice("Do you want to exclude apps?", models.NO)
-	if err != nil {
-		fmt.Println("Error occurred while asking choice")
-		return
-	}
+	choice := utils.GetYesNoChoice("Do you want to exclude apps?", models.NO)
 
 	if choice == models.YES {
 		foundApps = excludeApps(foundApps)
@@ -130,7 +126,7 @@ func createPackageArchive(manifest *models.Manifest, apps []GotDotsApp) (string,
 
 	// Create tar.gz file from temporary package folder
 	// Looks like: gotdots-pack-%s-%s.tar.gz
-	packTarName := fmt.Sprintf("gotdots-pack-%s-%s.tar.gz", manifest.Name, sterilizeString(manifest.Version))
+	packTarName := fmt.Sprintf("gotdots-pack-%s-%s.tar.gz", manifest.Name, utils.SterilizeString(manifest.Version))
 	packTarFullName := path.Join(archivesFolder, packTarName)
 
 	// Create tarball

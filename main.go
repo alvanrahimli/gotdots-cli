@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"gotDots/utils"
 	"os"
 )
 
@@ -23,7 +24,7 @@ func handleCommands(args []string) {
 			fmt.Println("Please specify package name")
 			return
 		} else {
-			createNewPackage(sterilizeString(args[1]))
+			createNewPackage(utils.SterilizeString(args[1]))
 		}
 	case "get":
 		if len(args) < 2 {
@@ -45,6 +46,13 @@ func handleCommands(args []string) {
 			return
 		} else {
 			updatePackage(args[1])
+		}
+	case "install":
+		if len(args) < 2 {
+			fmt.Println("Please specify package name")
+			return
+		} else {
+			installPackage(args[1])
 		}
 	case "login":
 		if len(args) < 1 {
