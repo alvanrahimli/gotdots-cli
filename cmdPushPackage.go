@@ -14,7 +14,28 @@ import (
 )
 
 func pushPackage(packName string) {
-	packArchive := findPackageArchive(packName)
+	foundArchives := findPackageArchive(packName)
+
+	// TODO: Push newer version
+	var packArchive string
+	if len(foundArchives) == 0 {
+		fmt.Printf("Could not find package with name: %s\n", packName)
+		os.Exit(1)
+	} else if len(foundArchives) == 1 {
+		packArchive = foundArchives[0]
+	} else {
+		fmt.Printf("Following packages found with name: %s\n", packName)
+		utils.ListNames("   ", foundArchives)
+		fmt.Print("Choose by entering number: ")
+		var choice int
+		_, scanErr := fmt.Scanln(&choice)
+		if scanErr != nil {
+			fmt.Println("Could not parse input")
+			os.Exit(1)
+		}
+
+		packArchive = foundArchives[choice-1]
+	}
 
 	if packArchive == "" {
 		fmt.Printf("Could not find package with name %s\n", packName)
@@ -54,9 +75,10 @@ func pushPackage(packName string) {
 		"Visibility":       strings.NewReader(manifest.Visibility),
 	}
 
-	err := Upload(client, remoteURL, values, token)
-	if err != nil {
-		panic(err)
+	uploadErr := Upload(client, remoteURL, values, token)
+	if uploadErr != nil {
+		fmt.Printf("Could not push to registry. Error: %s\n", uploadErr.Error())
+		os.Exit(1)
 	}
 
 	fmt.Printf("Package %s successfully pushed to registry\n", packName)
@@ -69,6 +91,7 @@ func Upload(client *http.Client, url string, values map[string]io.Reader, token 
 	for key, r := range values {
 		var fw io.Writer
 		if x, ok := r.(io.Closer); ok {
+			//goland:noinspection GoUnhandledErrorResult,GoDeferInLoop
 			defer x.Close()
 		}
 		// Add an image file
@@ -88,6 +111,7 @@ func Upload(client *http.Client, url string, values map[string]io.Reader, token 
 	}
 	// Don't forget to close the multipart writer.
 	// If you don't close it, your request will be missing the terminating boundary.
+	//goland:noinspection GoUnhandledErrorResult
 	w.Close()
 
 	// Now that you have a form, you can submit it to your handler.
@@ -107,9 +131,18 @@ func Upload(client *http.Client, url string, values map[string]io.Reader, token 
 
 	// Check the response
 	if res.StatusCode != http.StatusOK {
-		err = fmt.Errorf("bad status: %s", res.Status)
+		if res.StatusCode == 460 {
+			//goland:noinspection GoErrorStringFormat
+			err = fmt.Errorf("Package name exists. " +
+				"If you want to push new version, use 'dots update <pack name>' instead")
+		} else if res.StatusCode == http.StatusUnauthorized {
+			//goland:noinspection GoErrorStringFormat
+			err = fmt.Errorf("Please login and try again")
+		} else {
+			err = fmt.Errorf("Could not push to registry Error: %s\n", res.Status)
+		}
 	}
-	return
+	return err
 }
 
 func mustOpen(f string) *os.File {

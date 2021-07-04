@@ -156,18 +156,18 @@ func loadEnvVariables() {
 }
 
 // findPackageArchive returns archive's path for given package
-func findPackageArchive(packName string) string {
+// If multiple matches found, it asks user to choose from list
+func findPackageArchive(packName string) []string {
 	archiveFolder, folderErr := getArchivesFolder()
 	if folderErr != nil {
 		fmt.Printf("ERROR: %s\n", folderErr.Error())
 		panic(folderErr)
 	}
 
-	var foundPack string
+	var foundPacks []string
 	walkErr := filepath.Walk(archiveFolder, func(path string, info fs.FileInfo, err error) error {
-		// TODO: Refactor this to match whole package name
 		if strings.Contains(path, packName) {
-			foundPack = path
+			foundPacks = append(foundPacks, path)
 		}
 
 		return nil
@@ -178,7 +178,7 @@ func findPackageArchive(packName string) string {
 		panic(walkErr)
 	}
 
-	return foundPack
+	return foundPacks
 }
 
 func readToken() string {
@@ -187,7 +187,7 @@ func readToken() string {
 		panic(folderErr)
 	}
 
-	tokenStr, tokenErr := utils.ReadFromFile(path.Join(archivesFolder, "token"))
+	tokenStr, tokenErr := utils.ReadFromFile(path.Join(archivesFolder, ".token"))
 	if tokenErr != nil {
 		panic(tokenErr)
 	}

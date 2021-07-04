@@ -10,6 +10,14 @@ import (
 )
 
 func createNewPackage(packageName string) {
+	// Check if package with same name exists
+	foundArchives := findPackageArchive(packageName)
+	if len(foundArchives) >= 1 {
+		fmt.Println("Package name exists. \n" +
+			"If you want to create a new version, use\n   'dots update <pack name>'\ninstead")
+		os.Exit(1)
+	}
+
 	// Detect installed apps
 	foundApps := ScanForApps()
 	if len(foundApps) == 0 {

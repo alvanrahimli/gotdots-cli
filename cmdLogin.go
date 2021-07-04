@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 )
 
 func login() {
@@ -46,7 +47,7 @@ func login() {
 	defer response.Body.Close()
 
 	// Handle failed response
-	if response.StatusCode == 401 {
+	if response.StatusCode == http.StatusUnauthorized {
 		fmt.Printf("Could not login with given credentials. Hint: %s\n", response.Status)
 		return
 	}
@@ -54,7 +55,6 @@ func login() {
 	body, bodyReadErr := io.ReadAll(response.Body)
 	if bodyReadErr != nil {
 		fmt.Printf("ERROR: %s\n", bodyReadErr.Error())
-		// panic(bodyReadErr)
 		return
 	}
 
@@ -62,13 +62,12 @@ func login() {
 	unmarshallErr := json.Unmarshal(body, &loginResponse)
 	if unmarshallErr != nil {
 		fmt.Printf("ERROR: %s\n", unmarshallErr.Error())
-		// panic(unmarshallErr)
 		return
 	}
 
 	// Write token to file as: "Bearer <token>"
 	folder, _ := getArchivesFolder()
-	tokenFile := fmt.Sprintf("%s/token", folder)
+	tokenFile := path.Join(folder, ".token")
 	writeErr := utils.WriteToFile(tokenFile, fmt.Sprintf("Bearer %s", loginResponse.Token))
 	if writeErr != nil {
 		fmt.Println("Could not save token")
