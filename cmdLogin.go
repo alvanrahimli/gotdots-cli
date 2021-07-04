@@ -66,14 +66,43 @@ func login() {
 	}
 
 	// Write token to file as: "Bearer <token>"
-	folder, _ := getArchivesFolder()
-	tokenFile := path.Join(folder, ".token")
-	writeErr := utils.WriteToFile(tokenFile, fmt.Sprintf("Bearer %s", loginResponse.Token))
+	archivesFolder, _ := getArchivesFolder()
+	tokenFile := path.Join(archivesFolder, ".token")
+	authHeaderValue := fmt.Sprintf("Bearer %s", loginResponse.Token)
+	writeErr := utils.WriteToFile(tokenFile, authHeaderValue)
 	if writeErr != nil {
 		fmt.Println("Could not save token")
 		fmt.Printf("ERROR: %s\n", writeErr.Error())
 		return
 	}
 
-	fmt.Println("Successfully logged in")
+	// Get userinfo & write to $HOME/.dots-archives/.userinfo
+	infoUrl := os.Getenv("GET_USERINFO_URL")
+	client := http.Client{}
+	req, _ := http.NewRequest("GET", infoUrl, nil)
+	req.Header.Set("Authorization", authHeaderValue)
+	res, resErr := client.Do(req)
+	if resErr != nil {
+		handleError(resErr, true)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		// We should not reach here
+		fmt.Println("Wrong credentials")
+		os.Exit(1)
+	}
+
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		handleError(err, true)
+	}
+
+	infoFile := path.Join(archivesFolder, ".userinfo")
+	writeErr = utils.WriteToFile(infoFile, string(bodyBytes))
+	if writeErr != nil {
+		fmt.Println("Could not save userinfo")
+		handleError(writeErr, true)
+	}
+
+	fmt.Println("Successfully logged in and saved userinfo")
 }

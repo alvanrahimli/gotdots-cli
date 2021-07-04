@@ -85,18 +85,30 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	}
 
 	// TODO: Get userinfo
-	var username = "USERNAME"
-	var email = "EMAIL"
+	author := models.Author{
+		Name:  "ERROR",
+		Email: "ERROR",
+	}
+	archivesFolder, _ := getArchivesFolder()
+	authorStr, readErr := utils.ReadFromFile(path.Join(archivesFolder, ".userinfo"))
+	if readErr != nil {
+		handleError(readErr, false)
+	}
+
+	jsonErr := json.Unmarshal([]byte(authorStr), &author)
+	if jsonErr != nil {
+		handleError(jsonErr, false)
+	}
 
 	return models.Manifest{
-		Id:           fmt.Sprintf("org.gotdots.%s.%s", username, packageName),
+		Id:           fmt.Sprintf("org.gotdots.%s.%s", author.Name, packageName),
 		Name:         packageName,
 		Version:      version.ToString(),
 		Visibility:   visibility,
 		IncludedApps: includedApps,
 		Author: models.Author{
-			Name:  username,
-			Email: email,
+			Name:  author.Name,
+			Email: author.Email,
 		},
 	}
 }
@@ -152,9 +164,13 @@ func findPackageArchives(packName string) []string {
 	}
 
 	var foundPacks []string
-	walkErr := filepath.Walk(archiveFolder, func(path string, info fs.FileInfo, err error) error {
-		if strings.Contains(path, packName) {
-			foundPacks = append(foundPacks, path)
+	walkErr := filepath.Walk(archiveFolder, func(folderMemberPath string, info fs.FileInfo, err error) error {
+		// if it is archive file
+		if !info.IsDir() && strings.Contains(folderMemberPath, "tar.gz") {
+			manifest := utils.ReadManifestFromTar(folderMemberPath)
+			if manifest.Id == packName {
+				foundPacks = append(foundPacks, folderMemberPath)
+			}
 		}
 
 		return nil

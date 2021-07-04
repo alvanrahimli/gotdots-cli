@@ -45,7 +45,8 @@ func (app RofiApp) GetVersion() string {
 		return "ERROR"
 	}
 
-	return strings.Split(string(output), " ")[1]
+	version := strings.Trim(string(output), "\n")
+	return strings.Split(version, " ")[1]
 }
 
 func (app RofiApp) GetName() string {
