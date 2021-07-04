@@ -84,7 +84,6 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 		visibility = "Private"
 	}
 
-	// TODO: Get userinfo
 	author := models.Author{
 		Name:  "ERROR",
 		Email: "ERROR",
