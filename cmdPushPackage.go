@@ -14,7 +14,7 @@ import (
 )
 
 func pushPackage(packName string) {
-	foundArchives := findPackageArchive(packName)
+	foundArchives := findPackageArchives(packName)
 
 	// TODO: Push newer version
 	var packArchive string

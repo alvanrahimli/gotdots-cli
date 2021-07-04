@@ -11,7 +11,7 @@ import (
 
 func createNewPackage(packageName string) {
 	// Check if package with same name exists
-	foundArchives := findPackageArchive(packageName)
+	foundArchives := findPackageArchives(packageName)
 	if len(foundArchives) >= 1 {
 		fmt.Println("Package name exists. \n" +
 			"If you want to create a new version, use\n   'dots update <pack name>'\ninstead")
@@ -29,7 +29,7 @@ func createNewPackage(packageName string) {
 	appNames := getNames(foundApps)
 	fmt.Println("Following apps found on system. ")
 	utils.ListNames("   ", appNames)
-	choice, err := getYesNoChoice("Do you want to exclude apps?")
+	choice, err := getYesNoChoice("Do you want to exclude apps?", models.NO)
 	if err != nil {
 		fmt.Println("Error occurred while asking choice")
 		return

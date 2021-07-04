@@ -76,7 +76,7 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	}
 
 	var visibility string
-	choice, choiceErr := getYesNoChoice("Do you want to make package Public?")
+	choice, choiceErr := getYesNoChoice("Do you want to make package Public?", models.YES)
 	if choiceErr != nil {
 		fmt.Println("Could not get choice")
 		os.Exit(1)
@@ -155,9 +155,9 @@ func loadEnvVariables() {
 	}
 }
 
-// findPackageArchive returns archive's path for given package
+// findPackageArchives returns archive's path for given package
 // If multiple matches found, it asks user to choose from list
-func findPackageArchive(packName string) []string {
+func findPackageArchives(packName string) []string {
 	archiveFolder, folderErr := getArchivesFolder()
 	if folderErr != nil {
 		fmt.Printf("ERROR: %s\n", folderErr.Error())
@@ -228,19 +228,28 @@ func readManifestFile(fileAddress string) models.Manifest {
 	return manifest
 }
 
-func getYesNoChoice(question string) (models.Choice, error) {
-	fmt.Printf("%s (Y/n)", question)
+func getYesNoChoice(question string, defaultChoice models.Choice) (models.Choice, error) {
+	var alternateChoice models.Choice
+
+	if defaultChoice == models.YES {
+		alternateChoice = models.NO
+		fmt.Printf("%s (Y/n)", question)
+	} else if defaultChoice == models.NO {
+		alternateChoice = models.YES
+		fmt.Printf("%s (y/N)", question)
+	}
+
 	var choice string
 	_, scanErr := fmt.Scanln(&choice)
 	if scanErr != nil {
-		return models.NO, scanErr
+		return defaultChoice, nil
 	}
 
 	// Default is Y
 	if choice == "" || choice == "Y" || choice == "y" {
-		return models.YES, nil
+		return defaultChoice, nil
 	} else {
-		return models.NO, nil
+		return alternateChoice, nil
 	}
 
 }
