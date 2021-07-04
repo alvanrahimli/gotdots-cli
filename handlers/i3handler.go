@@ -5,8 +5,10 @@ import (
 	"gotDots/utils"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 type I3WindowManager struct {
@@ -39,8 +41,12 @@ func (wm I3WindowManager) GetConfigRoot() string {
 }
 
 func (wm I3WindowManager) GetVersion() string {
-	// TODO: Complete this to return real version
-	return "1.0.0-alpha"
+	output, outputErr := exec.Command("i3", "-v").Output()
+	if outputErr != nil {
+		panic(outputErr)
+	}
+
+	return strings.Split(string(output), " ")[2]
 }
 
 func (wm I3WindowManager) GetName() string {

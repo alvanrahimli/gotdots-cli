@@ -164,7 +164,6 @@ func findPackageArchive(packName string) string {
 	}
 
 	var foundPack string
-
 	walkErr := filepath.Walk(archiveFolder, func(path string, info fs.FileInfo, err error) error {
 		// TODO: Refactor this to match whole package name
 		if strings.Contains(path, packName) {

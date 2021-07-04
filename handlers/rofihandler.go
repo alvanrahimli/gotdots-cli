@@ -5,8 +5,10 @@ import (
 	"gotDots/utils"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 )
 
 type RofiApp struct {
@@ -38,8 +40,12 @@ func (app RofiApp) GetConfigRoot() string {
 }
 
 func (app RofiApp) GetVersion() string {
-	// TODO: Complete this to return real version
-	return "test-version"
+	output, outputErr := exec.Command("rofi", "-v").Output()
+	if outputErr != nil {
+		return "ERROR"
+	}
+
+	return strings.Split(string(output), " ")[1]
 }
 
 func (app RofiApp) GetName() string {

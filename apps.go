@@ -20,7 +20,7 @@ type GotDotsApp interface {
 	GetExistingDotfiles() ([]string, error)
 	// GetConfigRoot returns root directory where dotfile(s) are located
 	GetConfigRoot() string
-	// GetVersion returns version number of app
+	// GetVersion returns version of app
 	GetVersion() string
 	// GetName returns name of app's executable file
 	GetName() string
