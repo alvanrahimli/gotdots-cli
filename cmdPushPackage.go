@@ -14,9 +14,11 @@ import (
 )
 
 func pushPackage(packName string) {
-	foundArchives := findPackageArchives(packName)
+	author := readUserinfo()
+	packageId := fmt.Sprintf("org.gotdots.%s.%s", author.Name, packName)
+	foundArchives := findPackageArchives(packageId)
 
-	// TODO: Push newer version
+	// TODO: Ask for version to push (default to latest)
 	var packArchive string
 	if len(foundArchives) == 0 {
 		fmt.Printf("Could not find package with name: %s\n", packName)

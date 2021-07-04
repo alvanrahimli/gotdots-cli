@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 type IncludedApp struct {
@@ -17,6 +19,25 @@ type PackageVersion struct {
 
 func (p PackageVersion) ToString() string {
 	return fmt.Sprintf("%d.%d.%d", p.Major, p.Minor, p.Patch)
+}
+
+func NewPackageVersion(versionStr string) PackageVersion {
+	versionNumbersStr := strings.Split(versionStr, ".")
+	majorVersion, _ := strconv.Atoi(versionNumbersStr[0])
+	minorVersion, _ := strconv.Atoi(versionNumbersStr[1])
+	patchVersion, _ := strconv.Atoi(versionNumbersStr[2])
+
+	return PackageVersion{
+		Major: majorVersion,
+		Minor: minorVersion,
+		Patch: patchVersion,
+	}
+}
+
+func (p *PackageVersion) Increase(major, minor, patch int) {
+	p.Major += major
+	p.Minor += minor
+	p.Patch += patch
 }
 
 type Manifest struct {

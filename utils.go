@@ -54,16 +54,31 @@ func printHelp() {
 	fmt.Println("	install <pack name> :	Installs package to system")
 }
 
-func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
-	fmt.Print("Type version number (ex. 1.2.3): ")
+func createManifest(packageName string, apps []GotDotsApp, existingManifest ...models.Manifest) models.Manifest {
+	isUpdating := len(existingManifest) > 0
+
 	version := models.PackageVersion{}
+	if isUpdating {
+		fmt.Printf("Type new version number. (Currently on %s): ", existingManifest[0].Version)
+	} else {
+		fmt.Print("Type version number (ex. 1.2.3): ")
+	}
+
 	_, scanErr := fmt.Scanf("%d.%d.%d", &version.Major, &version.Minor, &version.Patch)
 	if scanErr != nil {
 		fmt.Printf("ERROR: %s\n", scanErr.Error())
-		version = models.PackageVersion{
-			Major: 1,
-			Minor: 0,
-			Patch: 0,
+		if isUpdating {
+			currentVersion := models.NewPackageVersion(existingManifest[0].Version)
+			currentVersion.Increase(0, 1, 0)
+			fmt.Printf("We will use version %s\n", currentVersion.ToString())
+			version = currentVersion
+		} else {
+			fmt.Println("We will use version 1.0.0")
+			version = models.PackageVersion{
+				Major: 1,
+				Minor: 0,
+				Patch: 0,
+			}
 		}
 	}
 
@@ -84,6 +99,22 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 		visibility = "Private"
 	}
 
+	author := readUserinfo()
+
+	return models.Manifest{
+		Id:           fmt.Sprintf("org.gotdots.%s.%s", author.Name, packageName),
+		Name:         packageName,
+		Version:      version.ToString(),
+		Visibility:   visibility,
+		IncludedApps: includedApps,
+		Author: models.Author{
+			Name:  author.Name,
+			Email: author.Email,
+		},
+	}
+}
+
+func readUserinfo() models.Author {
 	author := models.Author{
 		Name:  "ERROR",
 		Email: "ERROR",
@@ -98,18 +129,7 @@ func createManifest(packageName string, apps []GotDotsApp) models.Manifest {
 	if jsonErr != nil {
 		handleError(jsonErr, false)
 	}
-
-	return models.Manifest{
-		Id:           fmt.Sprintf("org.gotdots.%s.%s", author.Name, packageName),
-		Name:         packageName,
-		Version:      version.ToString(),
-		Visibility:   visibility,
-		IncludedApps: includedApps,
-		Author: models.Author{
-			Name:  author.Name,
-			Email: author.Email,
-		},
-	}
+	return author
 }
 
 // getArchivesFolder returns $HOME/.dots-archives

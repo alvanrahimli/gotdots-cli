@@ -13,13 +13,9 @@ func ListNames(prefix string, names []string) {
 }
 
 func GetYesNoChoice(question string, defaultChoice models.Choice) models.Choice {
-	var alternateChoice models.Choice
-
 	if defaultChoice == models.YES {
-		alternateChoice = models.NO
 		fmt.Printf("%s (Y/n) ", question)
 	} else if defaultChoice == models.NO {
-		alternateChoice = models.YES
 		fmt.Printf("%s (y/N) ", question)
 	}
 
@@ -31,8 +27,8 @@ func GetYesNoChoice(question string, defaultChoice models.Choice) models.Choice 
 
 	// Default is Y
 	if choice == "" || choice == "Y" || choice == "y" {
-		return defaultChoice
+		return models.YES
 	} else {
-		return alternateChoice
+		return models.NO
 	}
 }

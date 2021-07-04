@@ -9,13 +9,21 @@ import (
 	"path"
 )
 
-func createNewPackage(packageName string) {
+func createNewPackage(packageName string, manifests ...models.Manifest) {
 	// Check if package with same name exists
-	foundArchives := findPackageArchives(packageName)
-	if len(foundArchives) >= 1 {
-		fmt.Println("Package name exists. \n" +
-			"If you want to create a new version, use\n   'dots update <pack name>'\ninstead")
-		os.Exit(1)
+	author := readUserinfo()
+	packageId := fmt.Sprintf("org.gotdots.%s.%s", author.Name, packageName)
+	foundArchives := findPackageArchives(packageId)
+
+	// If we are creating brand new package
+	if len(manifests) == 0 {
+		if len(foundArchives) > 0 {
+			fmt.Println("Package name exists. \n" +
+				"If you want to create a new version, use\n   'dots update <pack name>'\ninstead")
+			fmt.Println("Following packages found:")
+			utils.ListNames("   ", foundArchives)
+			os.Exit(1)
+		}
 	}
 
 	// Detect installed apps
@@ -36,7 +44,7 @@ func createNewPackage(packageName string) {
 	}
 
 	// Create manifest
-	manifest := createManifest(packageName, foundApps)
+	manifest := createManifest(packageName, foundApps, manifests...)
 
 	// Make Tarball for package
 	packageArchive, tarErr := createPackageArchive(&manifest, foundApps)
