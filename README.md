@@ -1,3 +1,5 @@
+# [DEPRECATED]
+
 # gotdots-cli
 Easy to use application to share dotfiles as packages!
 ----
